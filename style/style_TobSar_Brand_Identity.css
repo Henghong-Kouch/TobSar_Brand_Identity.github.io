@@ -1,0 +1,1748 @@
+/*
+╔══════════════════════════════════════════════════════════════════╗
+║   TOBSAR BRAND IDENTITY SYSTEM — v3.0 — 2026                    ║
+║   stylesheet: TobSar_Brand_Identity_v3.css                       ║
+╠══════════════════════════════════════════════════════════════════╣
+║   HOW THIS FILE IS ORGANISED                                     ║
+║   ──────────────────────────                                     ║
+║   01  RESET          zero-out browser defaults                   ║
+║   02  TOKENS         every CSS custom property (design tokens)   ║
+║   03  BASE           html / body / typography / layout helpers   ║
+║   04  STICKY NAV     frosted-glass top navigation bar            ║
+║   05  COVER          full-viewport dark hero section             ║
+║   06  LOGO           logo grid, clear-space diagram, don'ts      ║
+║   07  COLOR SYSTEM   swatches, scales, semantic, gradients       ║
+║   08  TYPOGRAPHY     type-hero block, type-scale table           ║
+║   09  UI SYSTEM      spacing, buttons, badges, inputs, radius    ║
+║   10  COMPONENTS     chat bubbles, cards, toggles, toasts, nav  ║
+║   11  LIGHT vs DARK  token-map table + side-by-side panels       ║
+║   12  MOTION         keyframes + duration/easing demos           ║
+║   13  MARKETING      social templates, email preview             ║
+║   14  TOKENS BLOCK   code block syntax-highlight colours         ║
+║   15  FOOTER                                                     ║
+║   16  PRINT / RESPONSIVE                                         ║
+╚══════════════════════════════════════════════════════════════════╝
+
+  FONT DECISIONS
+  ──────────────
+  English  → Inter (Google Fonts, weights 300–900)
+  Khmer    → System font — no import needed.
+             Android, iOS, Windows 10+, macOS all have built-in
+             Khmer rendering via 'Khmer Sangam MN' / 'Noto Sans Khmer'.
+             Using system-ui means zero extra HTTP requests.
+
+  PRIMARY COLOUR
+  ──────────────
+  #0098FE (--blue-500)
+  This is the ONLY interactive-action colour in the product.
+  It does NOT change between light and dark mode.
+  WCAG contrast: 3.1:1 on white (AA Large) · 3.8:1 on #101828 (dark bg).
+*/
+
+
+/* ================================================================
+   01  RESET
+   Zero out browser inconsistencies.  Every element starts clean.
+================================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* padding/border included in width */
+  margin: 0;
+  padding: 0;
+}
+
+img   { max-width: 100%; display: block; }
+a     { color: inherit; text-decoration: none; }
+
+
+/* ================================================================
+   02  TOKENS — CSS Custom Properties
+   ──────────────────────────────────
+   All values are defined exactly once here and referenced
+   everywhere else via var(--token-name).
+   Changing a value here instantly updates the whole document.
+================================================================ */
+:root {
+
+  /* ── 02-A  Brand Blue ────────────────────────────────────────
+     Rule: ONE primary blue. Every CTA, logo mark, focus ring,
+     and active state uses --blue-500.
+
+     How to read the scale:
+       25–200  Light tints → badge backgrounds, hover surfaces
+       300–400 Mid tones   → icons on dark, helper text on blue bg
+       500     ★ PRIMARY   → buttons, logo text, links, focus ring
+       600     Hover state → applied on :hover of primary buttons
+       700     Pressed     → applied on :active
+       800–900 Deep navy   → text on blue backgrounds only
+  ─────────────────────────────────────────────────────────────── */
+  --blue-25:  #F0F9FF;
+  --blue-50:  #E0F3FF;
+  --blue-100: #BAE3FF;
+  --blue-200: #7FCEFF;
+  --blue-300: #3DB8FE;
+  --blue-400: #1AAAFF;
+  --blue-500: #0098FE;   /* ← PRIMARY BRAND BLUE — use for all CTAs */
+  --blue-600: #007ACC;   /* hover  */
+  --blue-700: #005C99;   /* pressed / active */
+  --blue-800: #003D66;
+  --blue-900: #001F33;
+
+  /* ── 02-B  AI / Purple ───────────────────────────────────────
+     Rule: EXCLUSIVE to AI features.
+     Use for: AI auto-reply badge, Gemini indicator, AI buttons,
+              AI-feature marketing.
+     Never use as a decorative accent colour.
+  ─────────────────────────────────────────────────────────────── */
+  --purple-50:  #F0EFFE;
+  --purple-200: #C4BFFA;
+  --purple-500: #6355E8;   /* AI-only colour */
+  --purple-700: #3C2DB8;
+
+  /* ── 02-C  Semantic: Success ─────────────────────────────────
+     Use ONLY for: "In stock" · "Paid" · "Confirmed" · "AI ready"
+     Never use green for non-success states (it confuses users).
+  ─────────────────────────────────────────────────────────────── */
+  --green-50:  #EDFAF4;
+  --green-100: #C4F0DB;
+  --green-500: #12B76A;
+  --green-600: #039855;
+  --green-700: #027A48;
+
+  /* ── 02-D  Semantic: Warning ─────────────────────────────────
+     Use ONLY for: "Low stock" · "Pending" · "Needs attention"
+  ─────────────────────────────────────────────────────────────── */
+  --amber-50:  #FFFAEB;
+  --amber-100: #FEF0C7;
+  --amber-500: #F79009;
+  --amber-700: #B54708;
+
+  /* ── 02-E  Semantic: Danger ──────────────────────────────────
+     Use ONLY for: "Out of stock" · "Failed" · "Error" · "Cancel"
+  ─────────────────────────────────────────────────────────────── */
+  --red-50:  #FFF1F3;
+  --red-100: #FFD5D9;
+  --red-400: #F97066;
+  --red-500: #F04438;
+  --red-700: #B42318;
+
+  /* ── 02-F  Neutral / Gray Scale ─────────────────────────────
+     The backbone of all UI surfaces and text hierarchy.
+
+     Usage guide:
+       900  Primary headings (h1, h2)
+       700  Secondary headings (h3, h4)
+       600  Body text, card content
+       500  Secondary copy, supporting text
+       400  Hints, placeholders, timestamps, inactive nav
+       300  Input borders, table dividers
+       200  Card borders, subtle separators
+       100  Section backgrounds, filter chips
+        50  Page background alt, table stripes
+         0  Pure white — main page background
+  ─────────────────────────────────────────────────────────────── */
+  --gray-0:   #FFFFFF;
+  --gray-25:  #FCFCFD;
+  --gray-50:  #F9FAFB;
+  --gray-100: #F2F4F7;
+  --gray-200: #E4E7EC;
+  --gray-300: #D0D5DD;
+  --gray-400: #98A2B3;
+  --gray-500: #667085;
+  --gray-600: #475467;
+  --gray-700: #344054;
+  --gray-800: #1D2939;
+  --gray-900: #101828;
+
+  /* ── 02-G  Light Mode Semantic Aliases ──────────────────────
+     Use these names in component code instead of raw gray values.
+     This makes dark-mode overrides trivial — change here, done.
+  ─────────────────────────────────────────────────────────────── */
+  --bg-base:      #FFFFFF;   /* main page background */
+  --bg-surface:   #F9FAFB;   /* card / panel background */
+  --bg-subtle:    #F2F4F7;   /* very subtle tints */
+  --text-primary: #101828;   /* headings */
+  --text-body:    #475467;   /* paragraphs */
+  --text-hint:    #98A2B3;   /* placeholders, timestamps */
+  --border:       #E4E7EC;   /* card borders */
+  --border-input: #D0D5DD;   /* input field borders */
+
+  /* ── 02-H  Dark Mode Surfaces ───────────────────────────────
+     Used in section 08 and in Telegram's native dark UI.
+
+     KEY RULE: --blue-500 (#0098FE) stays UNCHANGED in dark mode.
+     It has 3.8:1 contrast ratio on --dm-bg — WCAG AA for large text.
+     Never darken or desaturate the brand blue for dark mode.
+  ─────────────────────────────────────────────────────────────── */
+  --dm-bg:          #101828;               /* page background */
+  --dm-surface:     #0D1526;              /* one level deeper */
+  --dm-card:        #161E2E;              /* card / panel bg */
+  --dm-border:      rgba(255,255,255,.06); /* very subtle border */
+  --dm-text:        #FFFFFF;               /* primary text */
+  --dm-text-body:   rgba(255,255,255,.50); /* body copy */
+  --dm-text-hint:   rgba(255,255,255,.25); /* hint / placeholder */
+
+  /* ── 02-I  Approved Gradients ────────────────────────────────
+     Rule: Use ONLY for hero sections, onboarding banners,
+           and marketing assets.
+     NEVER apply gradients to: buttons · inputs · badges · icons.
+  ─────────────────────────────────────────────────────────────── */
+  --grad-brand: linear-gradient(135deg, #0098FE 0%, #6355E8 100%);
+  --grad-dark:  linear-gradient(135deg, #101828 0%, #1D2939 100%);
+  --grad-soft:  linear-gradient(135deg, #E0F3FF 0%, #F0EFFE 100%);
+
+  /* ── 02-J  Typography ────────────────────────────────────────
+     --font       → Inter for all English UI text
+     Khmer text   → system-ui (built-in on all modern OS)
+                    No Google Fonts import needed for Khmer.
+  ─────────────────────────────────────────────────────────────── */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Inter weight guide:
+     300 → Light       (long-form body alt)
+     400 → Regular     (standard body text)
+     500 → Medium      (labels, nav items)
+     600 → SemiBold    (buttons, card titles)
+     700 → Bold        (section headings)
+     800 → ExtraBold   (display / hero text)
+     900 → Black       (giant stat numbers)  */
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+  --weight-bold:      700;
+  --weight-extrabold: 800;
+  --weight-black:     900;
+
+  /* ── 02-K  Border Radius Scale ───────────────────────────────
+     When to use which:
+       --r-xs   4px  → tags, tiny chips, tooltip arrows
+       --r-sm   8px  → small badges, icon containers
+       --r-md  12px  → buttons, text inputs, dropdowns
+       --r-lg  16px  → small cards, modal headers
+       --r-xl  20px  → standard cards, panels
+       --r-2xl 24px  → large cards, feature sections
+       --r-3xl 32px  → hero cards, full-bleed sections
+       --r-full 9999 → pills, avatars, toggle tracks
+  ─────────────────────────────────────────────────────────────── */
+  --r-xs:   4px;
+  --r-sm:   8px;
+  --r-md:   12px;
+  --r-lg:   16px;
+  --r-xl:   20px;
+  --r-2xl:  24px;
+  --r-3xl:  32px;
+  --r-full: 9999px;
+
+  /* ── 02-L  Shadow Scale ──────────────────────────────────────
+     Each shadow is a layered pair for more realistic depth.
+     --sh-focus is the blue glow ring used on focused inputs.
+  ─────────────────────────────────────────────────────────────── */
+  --sh-xs:    0 1px 2px rgba(0,0,0,.06);
+  --sh-sm:    0 1px 3px rgba(0,0,0,.08),  0 1px 2px rgba(0,0,0,.05);
+  --sh-md:    0 4px 8px rgba(0,0,0,.07),  0 2px 4px rgba(0,0,0,.04);
+  --sh-lg:    0 10px 24px rgba(0,0,0,.08), 0 4px 8px rgba(0,0,0,.04);
+  --sh-xl:    0 20px 40px rgba(0,0,0,.10), 0 8px 16px rgba(0,0,0,.05);
+  --sh-focus: 0 0 0 4px rgba(0,152,254,.18); /* blue input ring */
+
+  /* ── 02-M  Spacing — 8pt Grid ────────────────────────────────
+     Rule: ALL spacing values are multiples of 4px.
+           The base unit is 8px (--sp-2).
+           NEVER invent new spacing values outside this scale.
+
+     Quick reference:
+       --sp-1   4px   micro gaps (icon ↔ label)
+       --sp-2   8px   compact padding
+       --sp-3  12px   small component padding
+       --sp-4  16px   standard component padding
+       --sp-6  24px   card inner padding
+       --sp-8  32px   section sub-spacing
+       --sp-12 48px   card outer margin
+       --sp-16 64px   section padding (desktop)
+       --sp-20 80px   large section gap
+  ─────────────────────────────────────────────────────────────── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+
+  /* ── 02-N  Motion — Duration ─────────────────────────────────
+     Rule: Faster = more interactive / physical feel.
+           Slower = more considered / important transition.
+
+       --dur-fast        100ms  button hover, toggle, badge change
+       --dur-normal      200ms  dropdown, tooltip, input focus (default)
+       --dur-slow        400ms  page transition, modal open
+       --dur-deliberate  600ms  onboarding steps, success moments
+       --dur-dramatic   1000ms  hero entrance, first-load animation
+  ─────────────────────────────────────────────────────────────── */
+  --dur-instant:    0ms;
+  --dur-fast:       100ms;
+  --dur-normal:     200ms;
+  --dur-slow:       400ms;
+  --dur-deliberate: 600ms;
+  --dur-dramatic:   1000ms;
+
+  /* ── 02-O  Motion — Easing Curves ───────────────────────────
+     --ease-standard    General UI transitions (most common)
+     --ease-decelerate  Things ENTERING the screen (slide in, appear)
+     --ease-accelerate  Things LEAVING the screen (dismiss, fade out)
+     --ease-spring      Interactive elements with a playful bounce
+                        (toggles, buttons, confirmations)
+  ─────────────────────────────────────────────────────────────── */
+  --ease-standard:   cubic-bezier(0.4,  0,    0.2, 1);
+  --ease-decelerate: cubic-bezier(0,    0,    0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4,  0,    1,   1);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+} /* end :root */
+
+
+/* ================================================================
+   03  BASE STYLES
+   Applied globally to html, body, and all heading/text elements.
+================================================================ */
+
+html {
+  scroll-behavior: smooth; /* smooth anchor jumps */
+}
+
+body {
+  font-family: var(--font);
+  background: var(--gray-0);
+  color: var(--gray-900);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased; /* sharper text on Mac/iOS */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Heading scale — mirrors the type-scale table in Section 05 */
+h1 { font-size: 60px;  font-weight: 800; letter-spacing: -.03em;  line-height: 1.05; }
+h2 { font-size: 38px;  font-weight: 700; letter-spacing: -.025em; line-height: 1.15; color: var(--gray-900); }
+h3 { font-size: 24px;  font-weight: 600; letter-spacing: -.015em; line-height: 1.30; color: var(--gray-900); }
+h4 { font-size: 16px;  font-weight: 600; line-height: 1.40;       color: var(--gray-900); }
+p  { color: var(--gray-600); line-height: 1.7; }
+
+/* <em> used for blue highlight text (not italic) */
+em { font-style: normal; color: var(--blue-500); }
+
+/* ── Layout helpers ── */
+
+/* Max-width wrapper — centres content, adds horizontal padding */
+.wrap   { max-width: 1080px; margin: 0 auto; padding: 0 64px; }
+
+/* Standard section vertical rhythm */
+.sec    { padding: 88px 0; }
+.sec-sm { padding: 56px 0; }
+
+/* Full-bleed horizontal rules between sections */
+hr.full { height: 1px; background: var(--gray-200); border: none; margin: 0; }
+
+/* In-section dividers */
+hr.in   { height: 1px; background: var(--gray-100); border: none; margin: 44px 0; }
+
+/* Responsive grid helpers */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr;           gap: 20px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr;       gap: 16px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr);    gap: 16px; }
+
+/* ── Shared text components ── */
+
+/* Small uppercase label above section headings */
+.tag {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--blue-500); display: block; margin-bottom: 12px;
+}
+
+/* Subtitle paragraph under section h2 */
+.lead {
+  font-size: 17px; font-weight: 400;
+  color: var(--gray-500); line-height: 1.7; max-width: 600px;
+}
+
+/* Section header block: tag + h2 + lead */
+.sh              { margin-bottom: 52px; }
+.sh .tag         { margin-bottom: 10px; }
+.sh h2           { margin-bottom: 14px; }
+
+/* ── Card base styles ── */
+/* Standard card with white background */
+.card {
+  background: var(--gray-0);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  padding: 28px;
+}
+
+/* Subtle card with light-gray background */
+.card-sm {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  padding: 20px;
+}
+
+
+/* ================================================================
+   04  STICKY NAVIGATION BAR
+   ──────────────────────────
+   Stays fixed at the top during scroll.
+   "Frosted glass" effect via backdrop-filter blur.
+   The inner div is max-width 1080px and holds the logo + links.
+
+   NOTE: backdrop-filter is supported in Chrome, Safari, Edge.
+         Firefox falls back to solid white — still readable.
+================================================================ */
+/* ═══════════════════════════════════
+   STICKY NAV — HORIZONTAL TOC
+═══════════════════════════════════ */
+
+.snav{
+  position:sticky;
+  top:0;
+  z-index:100;
+
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(16px);
+
+  border-bottom:1px solid #e7e7e7;
+
+  width:100%;
+}
+
+
+/* scroll container */
+
+.snav-inner{
+
+  display:flex;
+  align-items:center;
+
+  gap:28px;
+
+  padding:14px 24px;
+
+  width:100%;
+
+  margin-bottom:0 !important;
+  padding-bottom:0 !important;
+
+  overflow-x:scroll;
+  overflow-y:hidden;
+
+  white-space:nowrap;
+
+  scroll-behavior:smooth;
+  
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+
+  -webkit-overflow-scrolling:touch;
+
+  cursor:grab;
+
+  scrollbar-width:none;
+}
+
+.snav-inner::-webkit-scrollbar{
+  display:none;
+}
+
+/* keep nav items full width */
+.snav-inner a,
+.snav-logo{
+   flex-shrink:0;
+}
+
+
+/* LOGO FIX */
+
+.snav-logo{
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  flex-shrink:0;
+
+  position:sticky;
+  left:0;
+
+  padding-right:24px;
+
+  z-index:50;
+
+  background:linear-gradient(
+    to right,
+    rgba(255,255,255,1) 78%,
+    rgba(255,255,255,0)
+  );
+}
+
+
+/* IMPORTANT: stop giant logo */
+
+.snav-logo img{
+  width:32px;
+  height:32px;
+  object-fit:contain;
+  flex-shrink:0;
+}
+
+.snav-logo span{
+  font-size:16px;
+  font-weight:700;
+  color:var(--blue-500);
+}
+
+
+/* links */
+
+.snav a{
+
+  flex-shrink:0;
+
+  color:#667085;
+
+  text-decoration:none;
+
+  font-size:14px;
+  font-weight:600;
+
+  padding:8px 2px;
+
+  transition:.2s;
+}
+
+.snav a:hover{
+  color:#111827;
+}
+
+
+/* nested items */
+
+.toc-sub{
+  opacity:.65;
+  font-size:12px;
+}
+
+
+/* ================================================================
+   05  COVER SECTION
+   ──────────────────
+   Full-viewport dark hero.
+   Uses:
+     • dot-grid texture via CSS radial-gradient background-image
+     • two blurred "glow blob" divs for ambient light
+     • white and blue text over the dark navy background
+================================================================ */
+.cover {
+  min-height: 100vh;
+  background: var(--gray-900);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dot-grid texture overlay */
+.cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Blue ambient glow — top-right corner */
+.cover-glow1 {
+  position: absolute; top: -80px; right: -80px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: var(--blue-500); opacity: .09; filter: blur(90px);
+}
+
+/* Purple ambient glow — bottom-center */
+.cover-glow2 {
+  position: absolute; bottom: -80px; left: 20%;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: var(--purple-500); opacity: .06; filter: blur(80px);
+}
+
+/* Inner wrapper sits above the glows (z-index) */
+.ci    { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; }
+
+/* Cover internal nav (logo + version badge) */
+.cnav  { display: flex; justify-content: space-between; align-items: center; padding: 44px 64px 0; }
+.c-logo { display: flex; align-items: center; gap: 11px; }
+.c-logo img  { width: 40px; height: 40px; border-radius: 12px; }
+.c-word{font-size:22px; font-weight:700; color:var(--blue-500); letter-spacing:-.02em;}
+.c-badge {
+  font-size: 11px; font-weight: 500; letter-spacing: .06em;
+  color: rgba(255,255,255,.3);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.09);
+  padding: 5px 14px; border-radius: var(--r-full);
+}
+
+/* Hero text block */
+.c-body    { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 72px 64px 56px; }
+.c-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .11em; text-transform: uppercase; color: var(--blue-400); margin-bottom: 24px; }
+.c-h1      { font-size: 84px; font-weight: 800; letter-spacing: -.04em; line-height: .97; color: var(--gray-0); margin-bottom: 28px; }
+.c-h1 em   { color: var(--blue-500); } /* blue accent in headline */
+.c-sub     { font-size: 18px; color: rgba(255,255,255,.4); max-width: 480px; line-height: 1.6; margin-bottom: 44px; }
+
+/* Khmer tagline pill (system Khmer font, no import needed) */
+.c-khmer {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 10px 18px; border-radius: var(--r-full);
+  font-size: 14px; color: rgba(255,255,255,.4);
+}
+.c-khmer .kh { font-size: 16px; color: rgba(255,255,255,.6); font-weight: 600; }
+
+/* Stats strip at the bottom of the hero */
+.c-stats  { display: flex; padding: 28px 64px 44px; border-top: 1px solid rgba(255,255,255,.06); }
+.cs-item  {
+  flex: 1;
+  padding-right: 32px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  margin-right: 32px;
+}
+.cs-item:last-child { border-right: none; margin-right: 0; }
+.cs-val   { font-size: 28px; font-weight: 700; color: var(--blue-400); letter-spacing: -.02em; }
+.cs-label { font-size: 12px; color: rgba(255,255,255,.3); margin-top: 2px; }
+
+
+/* ================================================================
+   06  LOGO GUIDELINES
+================================================================ */
+
+/* 3-column grid of logo variant cells */
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* Individual logo cell */
+.logo-cell {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  padding: 40px 32px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; min-height: 180px;
+}
+.logo-cell.dark { background: var(--gray-900);  border-color: transparent; }
+.logo-cell.blue { background: var(--blue-500);  border-color: transparent; }
+.logo-cell img  { width: 48px; height: 48px; border-radius: 12px; }
+
+/* Cell caption */
+.logo-cell .lc-label {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--gray-400);
+}
+.logo-cell.dark .lc-label,
+.logo-cell.blue .lc-label { color: rgba(255,255,255,.45); }
+
+/* Wordmark layout inside a cell */
+.logo-wordmark { display: flex; align-items: center; gap: 10px; }
+.lw-text {font-size:22px; font-weight:700; color:var(--blue-500);}
+
+/* TobSar logo text on blue background */
+
+.logo-cell[style*="blue-500"] .lw-text{ color:#fff;}
+
+.logo-cell.dark .lw-text,
+.logo-cell.blue .lw-text   { color: var(--gray-0); }
+
+/* Clear-space diagram */
+.clearspace {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  padding: 48px;
+  display: flex; gap: 48px; align-items: center;
+  margin-bottom: 40px;
+}
+.cs-diagram {
+  flex-shrink: 0; width: 180px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+/* Dashed exclusion-zone border around the icon */
+.cs-inner {
+  position: relative; padding: 22px;
+  border: 1.5px dashed var(--blue-300); border-radius: 16px;
+}
+/* The four "x" labels on each side */
+.cs-x { position: absolute; font-size: 11px; font-weight: 700; color: var(--blue-500); }
+.cs-x.top { top:    -18px; left: 50%;  transform: translateX(-50%); }
+.cs-x.bot { bottom: -18px; left: 50%;  transform: translateX(-50%); }
+.cs-x.lft { left:   -14px; top:  50%;  transform: translateY(-50%); }
+.cs-x.rgt { right:  -14px; top:  50%;  transform: translateY(-50%); }
+
+/* "Don't" cards — red tint */
+.donts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.dont-card {
+  border: 1px solid var(--red-100); border-radius: var(--r-xl);
+  padding: 28px; background: var(--red-50);
+}
+.dont-card .dc-no { font-size: 20px; margin-bottom: 12px; }
+.dont-card h4     { font-size: 14px; color: var(--red-700); margin-bottom: 6px; }
+.dont-card p      { font-size: 13px; color: var(--red-500); }
+
+
+/* ================================================================
+   07  COLOR SYSTEM COMPONENTS
+================================================================ */
+
+/* Primary blue showcase — full-bleed blue card */
+.primary-showcase {
+  background: var(--blue-500);
+  border-radius: var(--r-2xl);
+  padding: 52px 56px;
+  margin-bottom: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 48px;
+  align-items: center;
+}
+.ps-left .ps-name { font-size: 52px; font-weight: 800; color: var(--gray-0); letter-spacing: -.03em; margin-bottom: 4px; }
+.ps-left .ps-hex  { font-family: 'Courier New', monospace; font-size: 18px; color: rgba(255,255,255,.55); margin-bottom: 20px; }
+.ps-left .ps-use  { font-size: 13px; color: rgba(255,255,255,.65); display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+/* Dot bullet before each use case */
+.ps-left .ps-use::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); flex-shrink: 0; }
+
+/* Related shade rows on the right side */
+.ps-sw            { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.ps-sw .sw-chip   { width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; }
+.ps-sw .sw-info   { font-size: 13px; color: rgba(255,255,255,.8); }
+.ps-sw .sw-hex    { font-family: 'Courier New', monospace; font-size: 12px; color: rgba(255,255,255,.4); display: block; }
+
+/* Horizontal swatch strip (blue scale / neutral scale) */
+.scale-strip      { display: flex; border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-sm); margin-bottom: 8px; }
+.ss-cell          { flex: 1; }
+.ss-top           { height: 72px; display: flex; align-items: center; justify-content: center; }
+.ss-bot           { padding: 10px 8px; background: var(--gray-50); }
+.ss-n             { font-size: 11px; font-weight: 700; color: var(--gray-700); }
+.ss-h             { font-family: 'Courier New', monospace; font-size: 10px; color: var(--gray-400); margin-top: 2px; }
+.star             { color: white; font-size: 16px; } /* ★ on the primary 500 swatch */
+
+/* Semantic 4-up colour cards */
+.semantic-4       { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+.sem-card         { border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--gray-200); }
+.sem-top          { padding: 24px; display: flex; justify-content: space-between; align-items: flex-end; min-height: 100px; }
+.sem-badge        { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-full); display: inline-block; }
+.sem-bot          { padding: 16px 20px; background: var(--gray-0); }
+.sn               { font-size: 13px; font-weight: 600; color: var(--gray-900); margin-bottom: 3px; }
+.sv               { font-family: 'Courier New', monospace; font-size: 12px; color: var(--gray-500); margin-bottom: 4px; }
+.su               { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+
+/* Gradient cards row */
+.grad-row         { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+.gc               { border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--gray-200); }
+.gc-top           { height: 120px; }
+.gc-bot           { padding: 20px; background: var(--gray-0); }
+.gn               { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+.gc2              { font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-500); margin-bottom: 6px; }
+.gu               { font-size: 12px; color: var(--gray-400); line-height: 1.5; }
+
+
+/* ================================================================
+   08  TYPOGRAPHY COMPONENTS
+================================================================ */
+
+/* Large Inter specimen block with decorative "Aa" watermark */
+.type-hero {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-2xl);
+  padding: 56px; margin-bottom: 40px;
+  overflow: hidden; position: relative;
+}
+/* The giant "Aa" text sitting behind the content */
+.type-hero::after {
+  content: 'Aa';
+  position: absolute; right: -20px; bottom: -40px;
+  font-size: 220px; font-weight: 800;
+  color: var(--gray-100); letter-spacing: -.06em; line-height: 1;
+  pointer-events: none; /* don't intercept mouse events */
+}
+.th-label    { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-500); margin-bottom: 20px; }
+.th-sample   { font-size: 56px; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; color: var(--gray-900); position: relative; z-index: 1; margin-bottom: 16px; }
+.th-sub      { font-size: 16px; color: var(--gray-500); position: relative; z-index: 1; }
+.th-weights  { display: flex; gap: 24px; margin-top: 32px; flex-wrap: wrap; }
+.th-w        { font-size: 15px; color: var(--gray-700); }
+.th-w span   { font-size: 11px; color: var(--gray-400); display: block; margin-top: 2px; }
+
+/* Type scale reference table */
+.type-scale  { border: 1px solid var(--gray-200); border-radius: var(--r-xl); overflow: hidden; margin-top: 32px; }
+.ts-row {
+  display: grid;
+  grid-template-columns: 140px 70px 70px 1fr;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.ts-row:last-child    { border-bottom: none; }
+.ts-row.head          { background: var(--gray-50); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gray-400); }
+.ts-c                 { font-size: 13px; color: var(--gray-500); }
+/* Blue token pill in the first column */
+.ts-c.token {
+  font-family: 'Courier New', monospace; font-size: 11px;
+  color: var(--blue-600); background: var(--blue-25);
+  padding: 2px 8px; border-radius: var(--r-sm); display: inline-block;
+}
+.ts-c.preview         { overflow: hidden; white-space: nowrap; }
+
+
+/* ================================================================
+   09  UI SYSTEM COMPONENTS
+================================================================ */
+
+/* Spacing visualiser — bar chart of all spacing tokens */
+.spacing-strip {
+  display: flex; align-items: flex-end; gap: 8px;
+  padding: 32px;
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl); overflow-x: auto;
+}
+.sp-item  { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 56px; }
+/* Each bar height = the actual pixel value it represents */
+.sp-block { background: var(--blue-500); opacity: .75; width: 36px; border-radius: 4px; }
+.sp-label { font-size: 10px; font-weight: 600; color: var(--gray-500); text-align: center; white-space: nowrap; }
+.sp-px    { font-family: 'Courier New', monospace; font-size: 9px; color: var(--gray-400); text-align: center; }
+
+/* ── Buttons ────────────────────────────────────────────────────
+   Base .btn class is shared by all variants.
+   Add a variant class (.btn-primary, .btn-secondary, etc.) on top.
+   Add a size class (.btn-sm / .btn-lg) for size variations.
+─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font);
+  font-size: 14px; font-weight: 600;
+  border-radius: var(--r-md);
+  padding: 10px 20px;
+  border: none; cursor: pointer; line-height: 1;
+  transition: all var(--dur-normal) var(--ease-standard);
+}
+
+/* Primary — blue background, white text. One per screen. */
+.btn-primary            { background: var(--blue-500); color: #fff; }
+.btn-primary:hover      { background: var(--blue-600); }
+
+/* Secondary — white background, gray border */
+.btn-secondary          { background: var(--gray-0); color: var(--gray-700); border: 1.5px solid var(--gray-300); }
+.btn-secondary:hover    { background: var(--gray-50); }
+
+/* Ghost — no background, blue text. For tertiary actions. */
+.btn-ghost              { background: transparent; color: var(--blue-500); border: none; }
+.btn-ghost:hover        { background: var(--blue-25); }
+
+/* Danger — red. Destructive actions only (delete, cancel order). */
+.btn-danger             { background: var(--red-500); color: #fff; }
+.btn-danger:hover       { background: var(--red-700); }
+
+/* AI — purple. Exclusively for Gemini/AI-triggered actions. */
+.btn-ai                 { background: var(--purple-500); color: #fff; }
+.btn-ai:hover           { background: var(--purple-700); }
+
+/* Size modifiers */
+.btn-sm  { padding: 7px 14px;  font-size: 12px; }
+.btn-lg  { padding: 14px 28px; font-size: 16px; }
+
+/* ── Badges ─────────────────────────────────────────────────────
+   Each badge = one semantic colour.  Never use colours outside
+   their defined meaning (e.g. don't use green for non-success).
+─────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: var(--r-full);
+}
+.badge .bd { width: 6px; height: 6px; border-radius: 50%; } /* coloured dot */
+
+.badge-blue   { background: var(--blue-50);   color: var(--blue-700);   } .badge-blue   .bd { background: var(--blue-500);   }
+.badge-green  { background: var(--green-50);  color: var(--green-700);  } .badge-green  .bd { background: var(--green-500);  }
+.badge-amber  { background: var(--amber-50);  color: var(--amber-700);  } .badge-amber  .bd { background: var(--amber-500);  }
+.badge-red    { background: var(--red-50);    color: var(--red-700);    } .badge-red    .bd { background: var(--red-500);    }
+.badge-purple { background: var(--purple-50); color: var(--purple-700); } .badge-purple .bd { background: var(--purple-500); }
+.badge-gray   { background: var(--gray-100);  color: var(--gray-700);   } .badge-gray   .bd { background: var(--gray-400);   }
+.badge-dark   { background: var(--gray-900);  color: var(--gray-100);   } .badge-dark   .bd { background: var(--gray-400);   }
+
+/* ── Inputs ──────────────────────────────────────────────────────
+   4 states: default → focused → error → disabled.
+─────────────────────────────────────────────────────────────── */
+.inp {
+  width: 100%; font-family: var(--font);
+  font-size: 14px; color: var(--gray-900);
+  background: var(--gray-0);
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--r-md);
+  padding: 10px 14px; outline: none;
+  transition: all var(--dur-normal) var(--ease-standard);
+}
+.inp:focus           { border-color: var(--blue-500); box-shadow: var(--sh-focus); }
+.inp.error           { border-color: var(--red-500); }
+.inp.error:focus     { box-shadow: 0 0 0 4px rgba(240,68,56,.15); }
+.inp:disabled        { background: var(--gray-50); color: var(--gray-400); cursor: not-allowed; }
+.inp-label           { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+.inp-hint            { font-size: 12px; color: var(--gray-500); }
+.inp-hint.err        { color: var(--red-500); }
+
+/* Radius showcase */
+.radius-row {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  padding: 32px;
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl); align-items: center;
+}
+.rad-item  { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.rad-box   { width: 56px; height: 56px; background: var(--blue-500); opacity: .7; }
+.rad-label { font-size: 11px; font-weight: 600; color: var(--gray-500); text-align: center; }
+.rad-sub   { font-family: 'Courier New', monospace; font-size: 10px; color: var(--gray-400); text-align: center; }
+
+
+/* ================================================================
+   10  COMPONENT LIBRARY
+================================================================ */
+
+/* ── Chat bubbles ────────────────────────────────────────────────
+   .chat-window = container (light mode)
+   .chat-msg    = one row (add .out for right-aligned AI replies)
+   .bubble-in   = customer message (gray, left-aligned)
+   .bubble-out  = AI message (blue, right-aligned)
+─────────────────────────────────────────────────────────────── */
+.chat-window {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl); padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-msg                  { display: flex; gap: 10px; align-items: flex-end; }
+.chat-msg.out              { flex-direction: row-reverse; } /* flip for AI replies */
+.chat-avatar               { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.chat-bubble               { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; }
+.bubble-in                 { background: var(--gray-0); border: 1px solid var(--gray-200); color: var(--gray-900); border-bottom-left-radius: 4px; }  /* customer */
+.bubble-out                { background: var(--blue-500); color: #fff; border-bottom-right-radius: 4px; }  /* AI reply */
+.chat-time                 { font-size: 10px; color: var(--gray-400); margin-top: 3px; text-align: right; }
+.chat-time.in              { text-align: left; }
+
+/* Dark chat container */
+.chat-window-dark {
+  background: var(--dm-surface); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--r-xl); padding: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.bubble-in-dark { background: var(--dm-card); border: 1px solid rgba(255,255,255,.06); color: var(--dm-text); border-bottom-left-radius: 4px; }
+
+/* ── Product card ─────────────────────────────────────────────── */
+.product-card              { background: var(--gray-0); border: 1px solid var(--gray-200); border-radius: var(--r-xl); overflow: hidden; }
+.pc-img                    { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, var(--blue-50), var(--purple-50)); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.pc-body                   { padding: 16px; }
+.pc-name                   { font-size: 15px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+.pc-price                  { font-size: 18px; font-weight: 700; color: var(--blue-500); margin-bottom: 8px; }
+
+/* ── Order card ───────────────────────────────────────────────── */
+.order-card                { background: var(--gray-0); border: 1px solid var(--gray-200); border-radius: var(--r-xl); padding: 20px; }
+.oc-header                 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.oc-id                     { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 600; color: var(--gray-700); }
+.oc-rows                   { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--gray-100); padding-top: 14px; }
+.oc-row                    { display: flex; justify-content: space-between; font-size: 13px; }
+.oc-row .ok                { color: var(--gray-500); }
+.oc-row .ov                { color: var(--gray-900); font-weight: 500; }
+.oc-total                  { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--gray-200); font-size: 15px; font-weight: 700; }
+
+/* ── Toggle / Switch ─────────────────────────────────────────── */
+.toggle-wrap               { display: flex; align-items: center; gap: 12px; }
+.toggle                    { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle input              { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track              { position: absolute; inset: 0; background: var(--gray-300); border-radius: var(--r-full); cursor: pointer; transition: background var(--dur-normal) var(--ease-standard); }
+.toggle input:checked ~ .toggle-track           { background: var(--blue-500); } /* on = blue */
+.toggle-thumb              { position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: var(--sh-xs); transition: transform var(--dur-normal) var(--ease-spring); }
+.toggle input:checked ~ .toggle-track .toggle-thumb { transform: translateX(20px); } /* slide right when on */
+.toggle-label              { font-size: 14px; font-weight: 500; color: var(--gray-700); }
+.toggle-sub                { font-size: 12px; color: var(--gray-400); }
+
+/* ── Notification toasts ─────────────────────────────────────── */
+.toast {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 18px; border-radius: var(--r-xl);
+  max-width: 360px; box-shadow: var(--sh-lg);
+}
+.toast-icon                { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-top: 1px; }
+.toast-title               { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 2px; }
+.toast-sub                 { font-size: 13px; color: var(--gray-500); }
+.toast-success             { background: var(--gray-0); border: 1px solid var(--green-100); }
+.toast-success .toast-icon { background: var(--green-100); color: var(--green-700); }
+.toast-error               { background: var(--gray-0); border: 1px solid var(--red-100); }
+.toast-error .toast-icon   { background: var(--red-100); color: var(--red-700); }
+.toast-ai                  { background: var(--gray-0); border: 1px solid var(--purple-200); }
+.toast-ai .toast-icon      { background: var(--purple-50); color: var(--purple-700); }
+
+/* ── Mobile bottom navigation ────────────────────────────────── */
+.bottom-nav                { display: flex; background: var(--gray-0); border-top: 1px solid var(--gray-200); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--sh-lg); }
+.bn-item                   { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 8px; gap: 4px; cursor: pointer; transition: all .15s; }
+.bn-item.active            { color: var(--blue-500); }
+.bn-item:not(.active)      { color: var(--gray-400); }
+.bn-icon                   { font-size: 20px; line-height: 1; }
+.bn-label                  { font-size: 10px; font-weight: 600; letter-spacing: .03em; }
+.bn-dot                    { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-500); margin-top: 2px; }
+
+/* ── Loading skeleton ────────────────────────────────────────────
+   Shimmer animation mimics content loading.
+   Apply .skeleton to any placeholder element.
+─────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -468px 0; }
+  100% { background-position:  468px 0; }
+}
+.skeleton {
+  background: linear-gradient(to right, var(--gray-100) 8%, var(--gray-50) 18%, var(--gray-100) 33%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--r-sm);
+}
+
+
+/* ================================================================
+   11  LIGHT vs DARK — COMPARISON PANELS
+   ──────────────────────────────────────
+   .compare-row = 2-column grid container
+   .mode-panel.light = white bg panel (left)
+   .mode-panel.dark  = dark navy panel (right)
+   Each panel renders the same component so you can see both
+   modes side by side.
+================================================================ */
+.compare-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl);
+  overflow: hidden; margin-bottom: 24px;
+}
+.mode-label {
+  padding: 12px 24px; font-size: 12px; font-weight: 600;
+  letter-spacing: .04em; display: flex; align-items: center; gap: 8px;
+}
+.mode-panel.light .mode-label { background: var(--gray-100); color: var(--gray-700); border-bottom: 1px solid var(--gray-200); }
+.mode-panel.dark  .mode-label { background: rgba(255,255,255,.05); color: rgba(255,255,255,.5); border-bottom: 1px solid rgba(255,255,255,.06); }
+.mode-body                     { padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.mode-panel.light .mode-body   { background: var(--gray-0); }
+.mode-panel.dark  .mode-body   { background: var(--dm-bg); }
+.mode-panel.dark               { border-left: 1px solid var(--gray-200); }
+
+/* Token map table (mirrors original v2 section 2.6) */
+.dm-grid        { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+
+/* Light mode token panel */
+.lm-swatch      { background: var(--gray-0); border: 1px solid var(--gray-200); border-radius: var(--r-xl); padding: 28px; }
+.lm-swatch h4   { font-size: 14px; color: var(--gray-900); margin-bottom: 16px; border-bottom: 1px solid var(--gray-100); padding-bottom: 12px; }
+.lm-row         { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray-50); }
+.lm-dot         { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; border: 1px solid var(--gray-200); }
+.lm-k           { font-size: 12px; color: var(--gray-600); flex: 1; }
+.lm-v           { font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-500); }
+
+/* Dark mode token panel */
+.dm-swatch      { background: var(--dm-bg); border: 1px solid rgba(255,255,255,.08); border-radius: var(--r-xl); padding: 28px; }
+.dm-swatch h4   { font-size: 14px; color: #fff; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,.06); padding-bottom: 12px; }
+.dm-row         { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.dm-dot         { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; border: 1px solid rgba(255,255,255,.15); }
+.dm-k           { font-size: 12px; color: rgba(255,255,255,.5); flex: 1; }
+.dm-v           { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(255,255,255,.35); }
+
+/* Dark mode UI component helpers */
+.dm-btn         { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font); font-size: 13px; font-weight: 600; border-radius: var(--r-md); padding: 9px 18px; border: none; cursor: pointer; }
+.dm-btn-p       { background: var(--blue-500); color: #fff; }  /* primary — same blue as light mode */
+.dm-btn-s       { background: rgba(255,255,255,.07); color: #fff; border: 1px solid rgba(255,255,255,.1); }  /* secondary */
+.dm-btn-g       { background: transparent; color: var(--blue-400); border: 1px solid var(--blue-800); }  /* ghost */
+
+.dm-inp         { width: 100%; font-family: var(--font); font-size: 13px; color: #fff; background: var(--dm-card); border: 1.5px solid rgba(255,255,255,.08); border-radius: var(--r-md); padding: 9px 13px; outline: none; }
+.dm-inp::placeholder { color: rgba(255,255,255,.25); }
+.dm-inp.focused { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(0,152,254,.15); }
+
+/* Dark dashboard stat card */
+.dm-card              { background: var(--dm-card); border: 1px solid rgba(255,255,255,.06); border-radius: var(--r-xl); padding: 20px; }
+.dm-card .dc-label    { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 8px; }
+.dm-card .dc-val      { font-size: 28px; font-weight: 700; color: var(--blue-400); letter-spacing: -.02em; }
+.dm-card .dc-sub      { font-size: 12px; color: rgba(255,255,255,.35); margin-top: 3px; }
+.dm-card .dc-bar      { height: 4px; background: rgba(255,255,255,.07); border-radius: var(--r-full); margin-top: 14px; overflow: hidden; }
+.dm-card .dc-fill     { height: 100%; border-radius: var(--r-full); background: var(--blue-500); }
+
+/* Light dashboard stat card (for side-by-side comparison) */
+.lm-card              { background: var(--gray-0); border: 1px solid var(--gray-200); border-radius: var(--r-xl); padding: 20px; }
+.lm-card .dc-label    { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 8px; }
+.lm-card .dc-val      { font-size: 28px; font-weight: 700; color: var(--blue-500); letter-spacing: -.02em; }
+.lm-card .dc-sub      { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+.lm-card .dc-bar      { height: 4px; background: var(--gray-100); border-radius: var(--r-full); margin-top: 14px; overflow: hidden; }
+.lm-card .dc-fill     { height: 100%; border-radius: var(--r-full); background: var(--blue-500); }
+
+
+/* ================================================================
+   12  MOTION SYSTEM
+   ──────────────────
+   @keyframes are defined here.
+   Duration + easing tokens are in Section 02 (TOKENS).
+   Apply animations with: animation: <name> var(--dur-slow) var(--ease-spring) both;
+================================================================ */
+
+/* Fade-up — cards, sections, content entering viewport */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scale-in — modals, toasts, success confirmations */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Slide-right — progress bars, onboarding steps */
+@keyframes slideRight {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+/* Pulse — AI thinking indicator, loading states */
+@keyframes pulse {
+  0%, 100% { opacity: 1;  }
+  50%       { opacity: .5; }
+}
+
+/* Spin — loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Bounce — notification bell, new message alert */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Shimmer — skeleton loading (defined in Section 10 above) */
+
+/* Helper classes for the motion demo section */
+.anim-fadeup  { animation: fadeUp  var(--dur-slow)   var(--ease-decelerate) both; }
+.anim-scalein { animation: scaleIn var(--dur-slow)   var(--ease-spring)     both; }
+.anim-pulse   { animation: pulse   2s               var(--ease-standard)   infinite; }
+.anim-spin    { animation: spin    1s               linear                 infinite; }
+.anim-bounce  { animation: bounce  1s               var(--ease-spring)     infinite; }
+
+/* Duration bar visualiser (in the motion section) */
+.dur-bar { height: 4px; background: var(--blue-500); border-radius: var(--r-full); opacity: .7; }
+
+/* Motion demo card container */
+.motion-demo-card {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--r-xl); padding: 32px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  text-align: center; min-height: 140px; justify-content: center;
+}
+
+
+/* ================================================================
+   13  MARKETING ASSETS
+================================================================ */
+
+/* 3-column social template grid */
+.mkt-grid    { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+.mkt-frame   { border: 1px solid var(--gray-200); border-radius: var(--r-xl); overflow: hidden; }
+.mkt-preview { display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.mkt-label   { padding: 14px 16px; border-top: 1px solid var(--gray-100); background: var(--gray-0); }
+.mkt-label .ml-name { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+.mkt-label .ml-dim  { font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-400); }
+
+/* Social template containers — each has a fixed aspect ratio */
+.soc-sq    { width: 100%; aspect-ratio: 1;     background: var(--gray-900); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.soc-fb    { width: 100%; aspect-ratio: 1.91;  background: var(--gray-900); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.soc-tg    { width: 100%; aspect-ratio: 2.5;   background: var(--blue-500); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.soc-og    { width: 100%; aspect-ratio: 1.91;  background: linear-gradient(135deg, var(--blue-700), var(--blue-500)); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.soc-app   { width: 100%; aspect-ratio: 1;     background: var(--grad-brand); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.soc-story { width: 100%; aspect-ratio: .5625; background: var(--gray-900); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; max-height: 280px; }
+
+/* Blue radial glow overlay on dark social cards */
+.soc-sq::before,
+.soc-fb::before,
+.soc-story::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(0,152,254,.25), transparent 60%);
+}
+
+/* Content inside social templates */
+.soc-inner     { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 20px; }
+.soc-inner img { width: 40px; height: 40px; border-radius: 11px; }
+.soc-inner .si-name { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: -.02em; }
+.soc-inner .si-sub  { font-size: 11px; color: rgba(255,255,255,.5); }
+
+/* Email template preview */
+.email-prev          { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--r-xl); overflow: hidden; margin-bottom: 32px; }
+.ep-chrome           { background: var(--gray-100); padding: 12px 16px; display: flex; gap: 6px; align-items: center; }
+.ep-dots             { display: flex; gap: 5px; }
+.ep-dot              { width: 10px; height: 10px; border-radius: 50%; }
+.ep-subject          { font-size: 12px; color: var(--gray-500); margin-left: 12px; flex: 1; }
+.ep-body             { padding: 40px 48px; background: var(--gray-0); max-width: 580px; margin: 0 auto; }
+.ep-header           { background: var(--blue-500); border-radius: var(--r-xl); padding: 32px; text-align: center; margin-bottom: 28px; }
+.ep-header img       { width: 36px; height: 36px; border-radius: 10px; margin: 0 auto 12px; }
+.ep-header .eh-name  { font-size: 18px; font-weight: 700; color: #fff; }
+.ep-h2               { font-size: 22px; font-weight: 700; color: var(--gray-900); margin-bottom: 12px; letter-spacing: -.02em; }
+.ep-p                { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-bottom: 20px; }
+.ep-cta              { display: inline-block; background: var(--blue-500); color: #fff; font-size: 14px; font-weight: 600; padding: 12px 28px; border-radius: var(--r-md); }
+.ep-footer           { text-align: center; font-size: 12px; color: var(--gray-400); margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--gray-100); }
+
+
+/* ================================================================
+   14  DEVELOPER TOKENS BLOCK
+   Syntax highlight colours for the CSS code block in Section 15.
+================================================================ */
+.token-block     { background: var(--gray-900); border-radius: var(--r-2xl); padding: 48px 52px; overflow-x: auto; }
+.token-block pre { font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.85; color: #E2E8F0; }
+.tk-comment      { color: rgba(255,255,255,.22); }  /* /* grey comments */  */
+.tk-prop         { color: #7DD3FC; }                /* --variable names (light blue) */
+.tk-val          { color: #86EFAC; }                /* colour values (green) */
+.tk-sel          { color: #C084FC; }                /* :root selector (purple) */
+.tk-url          { color: #FDA4AF; }                /* @import url (pink) */
+
+
+/* ================================================================
+   15  FOOTER
+================================================================ */
+.foot            { background: var(--gray-900); padding: 56px 0; }
+.foot-inner      { display: flex; justify-content: space-between; align-items: center; }
+.foot-logo       { display: flex; align-items: center; gap: 10px; }
+.foot-logo img   { width: 32px; height: 32px; border-radius: 10px; }
+.foot-logo span  { font-size: 17px; font-weight: 700; color: var(--blue-400); letter-spacing: -.01em; }
+.foot-meta       { font-size: 13px; color: rgba(255,255,255,.25); text-align: right; }
+.foot-meta strong{ display: block; color: rgba(255,255,255,.5); margin-bottom: 2px; }
+.foot-bot        { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.06); text-align: center; font-size: 12px; color: rgba(255,255,255,.2); }
+
+
+/* ================================================================
+   16  PRINT STYLES
+   When printing or exporting as PDF, hide the nav and reduce spacing.
+================================================================ */
+@media print {
+  .snav  { display: none; }
+  .sec   { padding: 48px 0; }
+  .cover { min-height: auto; page-break-after: always; }
+}
+
+
+/* ================================================================
+   17  RESPONSIVE — MOBILE BREAKPOINT (≤ 900px)
+   Collapse all multi-column grids to single-column.
+   Reduce horizontal padding on the wrapper.
+================================================================ */
+@media (max-width: 900px) {
+
+  /* Reduce wrapper padding on small screens */
+  .wrap  { padding: 0 24px; }
+  .snav  { padding: 0 24px; }
+
+  /* Collapse all grids to single column */
+  .logo-grid,
+  .donts-grid,
+  .semantic-4,
+  .grad-row,
+  .mkt-grid,
+  .dm-grid,
+  .compare-row,
+  .grid2,
+  .grid3,
+  .grid4 { grid-template-columns: 1fr; }
+
+  /* Primary showcase: stack vertically */
+  .primary-showcase { grid-template-columns: 1fr; }
+
+  /* Shrink hero headline on mobile */
+  .c-h1  { font-size: 52px; }
+
+  /* Type scale: show only 2 columns on mobile */
+  .ts-row { grid-template-columns: 1fr 1fr; }
+  .ts-row .ts-c:nth-child(3),
+  .ts-row .ts-c:nth-child(4) { display: none; }
+
+}
+
+/* Token colors for "Button System" and "Badge System" */
+
+.token-ref-wrap{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;
+  margin-top:24px;
+}
+
+.token-ref-card{
+  background:var(--gray-0);
+  border:1px solid var(--gray-200);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  box-shadow:var(--sh-sm);
+}
+
+.token-color{
+  height:88px;
+  width:100%;
+}
+
+.token-info{
+  padding:16px;
+}
+
+.token-name{
+  font-size:14px;
+  font-weight:700;
+  color:var(--gray-900);
+  margin-bottom:6px;
+}
+
+.token-code{
+  font-size:12px;
+  font-weight:500;
+  color:var(--gray-500);
+  font-family:monospace;
+}
+
+
+/* ================================================================
+   18  MESSAGE / ALERT SYSTEM — New Color Tokens & Components
+   ──────────────────────────────────────────────────────────────
+   These tokens cover the full message system used across TobSar:
+   info boxes, success banners, warning notes, error alerts,
+   and neutral/gray callouts — each with light AND dark variants.
+
+   HOW TO USE
+   ──────────
+   Light mode → use --msg-* tokens directly
+   Dark mode  → use --msg-dark-* tokens inside a .dark wrapper
+                or inside a @media (prefers-color-scheme: dark) block
+
+   COMPONENT CLASSES  (see definitions below)
+   ─────────────────────────────────────────
+   .alert               base class — apply on every alert box
+   .alert-info          blue  — informational messages
+   .alert-success       green — confirmations, completed actions
+   .alert-warning       amber — cautions, low-stock, pending
+   .alert-error         red   — errors, failures, danger
+   .alert-neutral       gray  — neutral notes, tips, hints
+
+   .msg-card            standalone message card variant (darker bg)
+   .msg-card-info / -success / -warning / -error / -neutral
+
+   Dark variants are applied with .dark parent:
+   .dark .alert-info  etc.
+================================================================ */
+
+/* ── New page-level background tokens (from the spec) ────────── */
+:root {
+
+  /* ─── LIGHT MODE BACKGROUNDS ─────────────────────────────────
+     These replace/extend the standard gray scale for pages
+     that use the new design language.
+  ──────────────────────────────────────────────────────────────*/
+  --page-bg:          #F5F7FB;   /* main page background — light gray */
+  --card-bg:          #FEFEFE;   /* card / container background — white */
+  --section-tint:     #F2EEFE;   /* soft lavender tint for section tops */
+
+  /* ─── LIGHT MODE ALERT: Error / Danger ───────────────────────
+     Use for: failed payments, out-of-stock errors, system errors
+  ──────────────────────────────────────────────────────────────*/
+  --error-bg:         #FDEBEA;   /* alert background */
+  --error-border:     #E57373;   /* border / icon colour */
+  --error-accent:     #D9534F;   /* icon fill, button colour */
+  --error-text:       #D9534F;   /* primary text colour */
+
+  /* ─── LIGHT MODE ALERT: Neutral / Gray ───────────────────────
+     Use for: tips, notes, informational callouts with no urgency
+  ──────────────────────────────────────────────────────────────*/
+  --neutral-bg:       #F1F3F5;   /* alert background */
+  --neutral-border:   #D0D7DE;   /* border */
+  --neutral-text:     #6B7280;   /* text */
+
+  /* ─── LIGHT MODE ALERT: Primary / Info ──────────────────────
+     Use for: informational messages, tips, onboarding hints
+  ──────────────────────────────────────────────────────────────*/
+  --info-bg:          #EEF4FF;   /* alert background */
+  --info-border:      #93C5FD;   /* border */
+  --info-main:        #4582E9;   /* icon, accent */
+  --info-text:        #2563EB;   /* primary text */
+
+  /* ─── LIGHT MODE ALERT: Success ─────────────────────────────
+     Use for: order confirmed, payment received, AI ready
+  ──────────────────────────────────────────────────────────────*/
+  --success-bg:       #EAF7F0;   /* alert background */
+  --success-border:   #86EFAC;   /* border */
+  --success-main:     #22C55E;   /* icon, accent */
+  --success-text:     #16A34A;   /* primary text */
+
+  /* ─── LIGHT MODE ALERT: Warning ─────────────────────────────
+     Use for: low stock, pending payment, expiring offers
+  ──────────────────────────────────────────────────────────────*/
+  --warning-bg:       #FCF8E6;   /* alert background */
+  --warning-border:   #FACC15;   /* border */
+  --warning-main:     #EAB308;   /* icon, accent */
+  --warning-text:     #CA8A04;   /* primary text */
+
+  /* ─── DARK MODE BACKGROUNDS ──────────────────────────────────
+     Separate from the main dark palette in Section 02-H above.
+     These are deeper, more saturated darks for the message system.
+  ──────────────────────────────────────────────────────────────*/
+  --dark-page-bg:     #121224;   /* main dark background — deep navy */
+  --dark-surface:     #161B23;   /* secondary surface — dark blue-black */
+  --dark-card-bg:     #111827;   /* card background — navy */
+
+  /* ─── DARK MODE ALERT: Error ─────────────────────────────────*/
+  --dark-error-bg:    #1B1114;
+  --dark-error-border:#7F1D1D;
+  --dark-error-accent:#EF4444;
+  --dark-error-text:  #F87171;
+
+  /* ─── DARK MODE ALERT: Neutral ───────────────────────────────*/
+  --dark-neutral-bg:  #1E293B;
+  --dark-neutral-border:#334155;
+  --dark-neutral-text:#CBD5E1;
+
+  /* ─── DARK MODE ALERT: Info ──────────────────────────────────*/
+  --dark-info-bg:     #0B1220;
+  --dark-info-border: #1D4ED8;
+  --dark-info-main:   #2563EB;
+  --dark-info-glow:   #3B82F6;
+  --dark-info-text:   #3B82F6;
+
+  /* ─── DARK MODE ALERT: Success ───────────────────────────────*/
+  --dark-success-bg:  #071A12;
+  --dark-success-border:#14532D;
+  --dark-success-main:#22C55E;
+  --dark-success-text:#4ADE80;
+
+  /* ─── DARK MODE ALERT: Warning ───────────────────────────────*/
+  --dark-warning-bg:  #1A1407;
+  --dark-warning-border:#854D0E;
+  --dark-warning-main:#EAB308;
+  --dark-warning-text:#FACC15;
+
+  /* ─── EXTRA ACCENT COLOURS ──────────────────────────────────
+     Additional UI accents found in the product.
+     Use sparingly — only where the primary blue or semantic
+     colours don't fit the specific context.
+  ──────────────────────────────────────────────────────────────*/
+  --accent-purple:    #8B61DC;   /* purple button / AI-secondary */
+  --accent-purple-soft:#C4B5FD; /* soft purple tint / badge bg */
+  --accent-deep-blue: #1E40AF;  /* deep blue — emphasis, links on dark */
+  --accent-cyan:      #38BDF8;  /* cyan tint — data viz, charts */
+  --accent-soft-green:#BBF7D0;  /* soft green — success tint on dark */
+
+} /* end new tokens */
+
+
+/* ================================================================
+   MESSAGE / ALERT COMPONENT STYLES
+   ──────────────────────────────────
+   .alert        = base structure (icon + content block)
+   Variant class sets the colours via the tokens above.
+================================================================ */
+
+/* Base alert layout */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-xl);       /* 20px — matches card radius */
+  border-left: 4px solid transparent;
+  border: 1px solid transparent;
+  border-left-width: 4px;
+  position: relative;
+}
+
+/* Icon container — round circle left of the text */
+.alert-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 1px;
+}
+
+/* Text area */
+.alert-content { flex: 1; min-width: 0; }
+
+.alert-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  line-height: 1.4;
+}
+
+.alert-body {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Optional dismiss / action link */
+.alert-action {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  display: inline-block;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+/* ─────────────────────────────────────────────
+   LIGHT MODE ALERT VARIANTS
+   Each alert keeps:
+   - Background color
+   - Full rounded border
+   - Colored icon circle
+   - Text styling
+   - No left accent strip
+───────────────────────────────────────────── */
+
+/* INFO ALERT */
+.alert-info {
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+}
+.alert-info .alert-icon {background: var(--info-main); /* blue icon circle */ color: #fff;}
+.alert-info .alert-title { color: var(--info-text); }
+.alert-info .alert-body {color: var(--info-text); opacity: .8;}
+.alert-info .alert-action { color: var(--info-text); }
+
+
+/* SUCCESS ALERT */
+.alert-success {
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+}
+.alert-success .alert-icon {background: var(--success-main); /* green icon circle */ color:#fff;}
+.alert-success .alert-title { color: var(--success-text); }
+.alert-success .alert-body {color: var(--success-text); opacity:.8;}
+.alert-success .alert-action { color: var(--success-text); }
+
+
+/* WARNING ALERT */
+.alert-warning {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+}
+.alert-warning .alert-icon {background: var(--warning-main); /* yellow icon circle */ color:#fff;}
+.alert-warning .alert-title { color: var(--warning-text); }
+.alert-warning .alert-body {color: var(--warning-text); opacity:.8;}
+.alert-warning .alert-action { color: var(--warning-text); }
+
+
+/* ERROR ALERT */
+.alert-error {
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+}
+.alert-error .alert-icon {background: var(--error-accent); /* red icon circle */ color:#fff;}
+.alert-error .alert-title { color: var(--error-text); }
+.alert-error .alert-body {color: var(--error-text); opacity:.8;}
+.alert-error .alert-action { color: var(--error-text); }
+
+
+/* NEUTRAL / NOTE ALERT */
+.alert-neutral {
+  background: var(--neutral-bg);
+  border: 1px solid var(--neutral-border);
+}
+.alert-neutral .alert-icon {background: var(--neutral-text); /* gray icon circle */ color:#fff;}
+.alert-neutral .alert-title { color: var(--neutral-text); }
+.alert-neutral .alert-body {color: var(--neutral-text); opacity:.85;}
+.alert-neutral .alert-action {color: var(--neutral-text);}
+
+
+/* ─────────────────────────────────────────────
+   DARK MODE ALERT VARIANTS
+   Apply .dark on parent container:
+   <div class="dark">
+
+   Uses same structure as light mode:
+   - full border
+   - no left color strip
+   - dark backgrounds
+   - glow color tokens
+───────────────────────────────────────────── */
+
+
+/* DARK INFO ALERT */
+.dark .alert-info {
+  background: var(--dark-info-bg);
+  border: 1px solid var(--dark-info-border);
+}
+.dark .alert-info .alert-icon {background: var(--dark-info-main); color:#fff;}
+.dark .alert-info .alert-title {color: var(--dark-info-text);}
+.dark .alert-info .alert-body {color: var(--dark-info-text); opacity:.75;}
+.dark .alert-info .alert-action {color: var(--dark-info-glow);}
+
+
+/* DARK SUCCESS ALERT */
+.dark .alert-success {
+  background: var(--dark-success-bg);
+  border: 1px solid var(--dark-success-border);
+}
+.dark .alert-success .alert-icon {background: var(--dark-success-main); color:#fff;}
+.dark .alert-success .alert-title {color: var(--dark-success-text);}
+.dark .alert-success .alert-body {color: var(--dark-success-text); opacity:.75;}
+.dark .alert-success .alert-action {color: var(--dark-success-text);}
+
+
+/* DARK WARNING ALERT */
+.dark .alert-warning {
+  background: var(--dark-warning-bg);
+  border: 1px solid var(--dark-warning-border);
+}
+.dark .alert-warning .alert-icon {background: var(--dark-warning-main); color:#fff;}
+.dark .alert-warning .alert-title {color: var(--dark-warning-text);}
+.dark .alert-warning .alert-body {color: var(--dark-warning-text); opacity:.75;}
+.dark .alert-warning .alert-action {color: var(--dark-warning-text);}
+
+
+/* DARK ERROR ALERT */
+.dark .alert-error {
+  background: var(--dark-error-bg);
+  border: 1px solid var(--dark-error-border);
+}
+.dark .alert-error .alert-icon {background: var(--dark-error-accent); color:#fff;}
+.dark .alert-error .alert-title {color: var(--dark-error-text);}
+.dark .alert-error .alert-body {color: var(--dark-error-text); opacity:.75;}
+.dark .alert-error .alert-action {color: var(--dark-error-text);}
+
+
+/* DARK NEUTRAL / NOTE ALERT */
+.dark .alert-neutral {
+  background: var(--dark-neutral-bg);
+  border: 1px solid var(--dark-neutral-border);
+}
+.dark .alert-neutral .alert-icon {background: var(--dark-neutral-border); color:#fff;}
+.dark .alert-neutral .alert-title {color: var(--dark-neutral-text);}
+.dark .alert-neutral .alert-body {color: var(--dark-neutral-text); opacity:.75;}
+.dark .alert-neutral .alert-action {color: var(--dark-neutral-text);}
+
+/* ── MSG-CARD variant — heavier, standalone card style ──────────
+   Larger padding, rounded corners, no left border — block style.
+   Used for empty states, inline notices, and dashboard callouts.
+────────────────────────────────────────────────────────────────*/
+.msg-card {
+  padding: 20px 22px;
+  border-radius: var(--r-2xl);      /* 24px */
+  border: 1px solid transparent;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+
+/* Reuse alert sub-elements inside msg-card */
+.msg-card .alert-icon  { width: 28px; height: 28px; font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+.msg-card .alert-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+.msg-card .alert-body  { font-size: 14px; line-height: 1.65; }
+
+/* Light card variants */
+.msg-card-info    { background: var(--info-bg);    border-color: var(--info-border);    }
+.msg-card-success { background: var(--success-bg); border-color: var(--success-border); }
+.msg-card-warning { background: var(--warning-bg); border-color: var(--warning-border); }
+.msg-card-error   { background: var(--error-bg);   border-color: var(--error-border);   }
+.msg-card-neutral { background: var(--neutral-bg); border-color: var(--neutral-border); }
+
+/* Dark card variants */
+.dark .msg-card-info    { background: var(--dark-info-bg);    border-color: var(--dark-info-border);    }
+.dark .msg-card-success { background: var(--dark-success-bg); border-color: var(--dark-success-border); }
+.dark .msg-card-warning { background: var(--dark-warning-bg); border-color: var(--dark-warning-border); }
+.dark .msg-card-error   { background: var(--dark-error-bg);   border-color: var(--dark-error-border);   }
+.dark .msg-card-neutral { background: var(--dark-neutral-bg); border-color: var(--dark-neutral-border); }
+
+/* Dark card text colours */
+.dark .msg-card-info    .alert-title { color: var(--dark-info-text); }
+.dark .msg-card-info    .alert-body  { color: var(--dark-info-text);    opacity: .75; }
+.dark .msg-card-success .alert-title { color: var(--dark-success-text); }
+.dark .msg-card-success .alert-body  { color: var(--dark-success-text); opacity: .75; }
+.dark .msg-card-warning .alert-title { color: var(--dark-warning-text); }
+.dark .msg-card-warning .alert-body  { color: var(--dark-warning-text); opacity: .75; }
+.dark .msg-card-error   .alert-title { color: var(--dark-error-text); }
+.dark .msg-card-error   .alert-body  { color: var(--dark-error-text);   opacity: .75; }
+.dark .msg-card-neutral .alert-title { color: var(--dark-neutral-text); }
+.dark .msg-card-neutral .alert-body  { color: var(--dark-neutral-text); opacity: .75; }
+
+
+/* ── Inline toast / snackbar variant ─────────────────────────── */
+.msg-toast {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  border-radius: var(--r-full);          /* pill shape */
+  font-size: 13px; font-weight: 500;
+  box-shadow: var(--sh-md);
+}
+.msg-toast .alert-icon { width: 18px; height: 18px; font-size: 10px; }
+.msg-toast-info    { background: var(--info-bg);    color: var(--info-text);    border: 1px solid var(--info-border); }
+.msg-toast-success { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+.msg-toast-warning { background: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
+.msg-toast-error   { background: var(--error-bg);   color: var(--error-text);   border: 1px solid var(--error-border); }
+.dark .msg-toast-info    { background: var(--dark-info-bg);    color: var(--dark-info-text);    border-color: var(--dark-info-border); }
+.dark .msg-toast-success { background: var(--dark-success-bg); color: var(--dark-success-text); border-color: var(--dark-success-border); }
+.dark .msg-toast-warning { background: var(--dark-warning-bg); color: var(--dark-warning-text); border-color: var(--dark-warning-border); }
+.dark .msg-toast-error   { background: var(--dark-error-bg);   color: var(--dark-error-text);   border-color: var(--dark-error-border); }
+
+
+/* ── Extra accent colour swatch helpers ─────────────────────── */
+/* Used in the brand guide swatch display only */
+.accent-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--gray-200);
+  background: var(--gray-0);
+}
+.accent-chip .ac-dot {
+  width: 20px; height: 20px;
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+.accent-chip .ac-name  { font-size: 12px; font-weight: 600; color: var(--gray-900); }
+.accent-chip .ac-hex   { font-family: 'Courier New', monospace; font-size: 11px; color: var(--gray-500); }
+
+/* Khmer logo text - Logo Guidelines only */
+.kh-logo{
+  color:#0098FE;
+}
+
+/* White text on blue logo background */
+.logo-cell[style*="blue-500"] .kh-logo{
+  color:#fff;
+}
+
+/* TobSar logo text on dark Logo Guidelines card */
+.logo-cell.dark .lw-text{
+  color:#0098FE !important;
+}
+
+/* Marketing Assets - TobSar name */
+.soc-sq .si-name,
+.soc-fb .si-name,
+.soc-story .si-name{
+   color:#0098FE !important;
+}
+
+/* Email Template Version 2 only */ 
+.ep-header-v2{ background:#FFFFFF !important; padding:14px 18px; border-radius:16px; display:inline-flex; align-items:center; gap:12px; } .ep-header-v2 .eh-name{ color:#0098FE !important; }
